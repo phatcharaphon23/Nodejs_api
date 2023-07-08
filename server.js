@@ -4,7 +4,9 @@ let app = express();
 let port = process.env.PORT || 3000;
 let bodyParser = require('body-parser');
 let mysql = require('mysql');
+let cors = require('cors');
 
+app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended:true}));
 
@@ -37,30 +39,39 @@ app.get('/account', (req, res) => {
 }); 
 
 // add a new account 
-app.post('/accounts', (req, res) => {   
+app.post('/importfile', (req, res) => {   
     // account.push(req.body)
-    let name = req.body.name;
-    let password = req.body.password;
+    
+    let username = req.body.username;
+    let department = req.body.department;
+    let license = req.body.license;
+    let Installed = req.body.Installed;
+    let brand = req.body.brand;
+    let model = req.body.model;
+    let serial = req.body.serial;
     
     // Validation
-    if (!name || !password) {
+    if (!serial) {
         return res.status(400).send({ error: true, message: "กรุณากรอกข้อมูลให้ครบ" });
     } else {
-        dbcon.query('INSERT INTO account (name, password) VALUES(?, ?)', [name, password], (error, results, fields) => {
+        dbcon.query('INSERT INTO importfile (username, department, license, Installed, brand, model,serial) VALUES(?, ?, ?, ?, ?, ?, ?)', [username, department, license, Installed, brand, model, serial], (error, results, fields) => {
             if (error) throw error;
-            return res.send({ error: false, data: results, message: "account" })
+            return res.send({ error: false, data: results, message: "importfile " })
         })
     }
+    
 });
 
 // retrive account by id
-app.get('/accounts/:id', (req, res) => {
+app.get('/user', (req, res) => {
     let id = req.params.id;
-
-    if (!id) {
+    let name = req.body.name;
+    let password = req.body.password;
+    // console.log(req.body)
+    if (!name && !password) {
         return res.status(400).send({ error: true, message: "Please provide account id"});
     } else {
-        dbcon.query("SELECT * FROM account WHERE id = ?", id, (error, results, fields) => {
+        dbcon.query("SELECT * FROM account WHERE name=? AND password=?", [name, password], (error, results, fields) => {
             if (error) throw error;
 
             let message = "";
